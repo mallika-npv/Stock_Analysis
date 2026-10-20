@@ -13,7 +13,7 @@ Answers: "What did the market actually do over these years, and what repeats?"
 
 Setup:   pip install pandas numpy matplotlib
 Data:    put your yearly niftyindices CSVs in the folder set below
-Outputs: ./output/  (PNG charts + CSV tables)
+Outputs: ./Nifty_op/  (PNG charts + CSV tables)
 """
 import os
 import glob
@@ -31,6 +31,7 @@ DATA_FOLDER = os.path.join(BASE_DIR, "nifty_manual")   # or: r"C:\path\to\nifty_
 REVERSAL = 0.10        # a bull/bear phase flips after a 10% move against it
 MIN_DRAWDOWN = 0.05    # list drawdowns of at least 5%
 os.chdir(BASE_DIR)
+OUT_DIR = "Nifty_op"
 os.makedirs("output", exist_ok=True)
 
 MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -146,7 +147,7 @@ for a, b in zip(nodes[:-1], nodes[1:]):
         "note": ("partial/ongoing" if (a == 0 or b == len(c) - 1) else ""),
     })
 ph = pd.DataFrame(phases)
-ph.to_csv("output/phases.csv", index=False)
+ph.to_csv(f"{OUT_DIR}/phases.csv", index=False)
 
 print("\n" + "=" * 70)
 print(f"2. BULL / BEAR PHASES  (a phase ends after a {REVERSAL * 100:.0f}% reversal)")
@@ -181,7 +182,7 @@ for _, seg in underwater.groupby(grp):
     })
 dd = pd.DataFrame(episodes)
 dd_big = dd[dd["depth_%"] <= -MIN_DRAWDOWN * 100].sort_values("depth_%").reset_index(drop=True)
-dd_big.to_csv("output/drawdowns.csv", index=False)
+dd_big.to_csv(f"{OUT_DIR}/drawdowns.csv", index=False)
 print("\n" + "=" * 70)
 print(f"3. DRAWDOWNS of {MIN_DRAWDOWN * 100:.0f}% or more (deepest first)")
 print("=" * 70)
@@ -210,7 +211,7 @@ for _, seg in st.groupby(run_id):
     runs.append({"state": seg.iloc[0], "start": seg.index[0].date(), "end": seg.index[-1].date(),
                  "trading_days": len(seg), "return_%": round((c.iloc[i1] / base - 1) * 100, 1)})
 runs = pd.DataFrame(runs)
-runs.to_csv("output/trend_state_runs.csv", index=False)
+runs.to_csv(f"{OUT_DIR}/trend_state_runs.csv", index=False)
 
 r_state = ret.reindex(st.index).dropna()
 stat = pd.DataFrame({
@@ -257,7 +258,7 @@ mret = mclose.pct_change().dropna()
 mret.index = pd.MultiIndex.from_tuples(mret.index, names=["Year", "Month"])
 heat = mret.unstack("Month").reindex(columns=range(1, 13))
 heat.columns = MONTHS
-heat.to_csv("output/monthly_returns.csv")
+heat.to_csv(f"{OUT_DIR}/monthly_returns.csv")
 
 month_stats = pd.DataFrame({
     "avg_%": mret.groupby(level="Month").mean().mul(100).round(2),
@@ -365,7 +366,7 @@ ax[3].set_yticks([])
 ax[3].legend(handles=[Patch(color=v, label=k) for k, v in scol.items()],
              loc="upper center", ncol=3, bbox_to_anchor=(0.5, -0.4), fontsize=8)
 plt.tight_layout()
-plt.savefig("output/cycles_overview.png", dpi=130)
+plt.savefig(f"{OUT_DIR}/cycles_overview.png", dpi=130)
 
 fig2, bx = plt.subplots(2, 2, figsize=(15, 10))
 # yearly returns
@@ -406,12 +407,9 @@ if len(roll12):
     bx[1, 1].axhline(0, color="black", lw=0.6)
 bx[1, 1].set_title("Rolling 1-year return %")
 plt.tight_layout()
-plt.savefig("output/calendar_and_returns.png", dpi=130)
+plt.savefig(f"{OUT_DIR}/calendar_and_returns.png", dpi=130)
 
-print("\nSaved in ./output/: cycles_overview.png, calendar_and_returns.png,")
+print(f"\nSaved in ./{OUT_DIR}/: cycles_overview.png, calendar_and_returns.png,")
 print("  phases.csv, drawdowns.csv, trend_state_runs.csv, monthly_returns.csv")
 print("Descriptive analysis of past data only - not a forecast or investment advice.")
 plt.show()
-
-
-### https://www.linkedin.com/jobs/view/4458385434/
