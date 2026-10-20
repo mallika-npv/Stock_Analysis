@@ -27,7 +27,7 @@ warnings.filterwarnings("ignore")
 
 # ------------------------------------------------------------------ SETTINGS
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_FOLDER = os.path.join(BASE_DIR, "nifty_manual")   # or: r"C:\path\to\nifty_manual"
+DATA_FOLDER = os.path.join(BASE_DIR, "Historical_Data_NIFTY")   # or: r"C:\path\to\nifty_manual"
 REVERSAL = 0.10        # a bull/bear phase flips after a 10% move against it
 MIN_DRAWDOWN = 0.05    # list drawdowns of at least 5%
 os.chdir(BASE_DIR)
